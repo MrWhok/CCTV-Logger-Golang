@@ -1,10 +1,3 @@
-1. Register masih belum benar
-2. Jika pada image ditambahi auth, masih invalid token 
-
-
-
-Absolutely, I'd be happy to explain the differences and how they work together in a typical web application.
-
 ### Overview
 
 1. **Repository**: Handles data access and persistence.
@@ -113,6 +106,3 @@ Let's say you want to register a new user:
 3. **Service**: The `Register` method in the `UserService` contains the business logic for registering a user. It hashes the password, creates a new user object, and calls the `CreateUser` method in the `UserRepository`.
 4. **Repository**: The `CreateUser` method in the `UserRepository` interacts with the database to save the new user.
 
-This separation of concerns makes your code more modular, easier to maintain, and testable. Each layer has a specific responsibility, and they work together to handle the application's functionality.
-
-I hope this clarifies the roles of each component! Let me know if you have any more questions.
