@@ -1,0 +1,118 @@
+1. Register masih belum benar
+2. Jika pada image ditambahi auth, masih invalid token 
+
+
+
+Absolutely, I'd be happy to explain the differences and how they work together in a typical web application.
+
+### Overview
+
+1. **Repository**: Handles data access and persistence.
+2. **Service**: Contains business logic and interacts with repositories.
+3. **Handler**: Manages HTTP requests and responses, often called controllers in other frameworks.
+4. **Router**: Defines the routes/endpoints and maps them to handlers.
+
+### Detailed Explanation
+
+#### Repository
+- **Purpose**: The repository is responsible for interacting with the database. It abstracts the data access logic and provides a clean API for the rest of the application to use.
+- **When to Use**: Use repositories when you need to perform CRUD (Create, Read, Update, Delete) operations on your data.
+- **Example**: Fetching a user from the database, saving a new image, updating an existing record.
+
+```go
+// Example: UserRepository
+type UserRepository interface {
+    CreateUser(user *models.User) error
+    FindUserByUsername(username string) (*models.User, error)
+    GetAllUsers() ([]models.User, error)
+}
+
+type userRepository struct {
+    collection string
+}
+
+func (r *userRepository) CreateUser(user *models.User) error {
+    // Database interaction logic
+}
+```
+
+#### Service
+- **Purpose**: The service layer contains the business logic of the application. It uses repositories to fetch and manipulate data and applies business rules.
+- **When to Use**: Use services when you need to implement business logic that involves data manipulation, validation, or complex operations.
+- **Example**: Registering a new user, logging in a user, updating the starred status of an image.
+
+```go
+// Example: UserService
+type UserService interface {
+    Register(c *gin.Context)
+    Login(c *gin.Context)
+    GetAllUsers(c *gin.Context)
+}
+
+type userService struct {
+    repo repository.UserRepository
+}
+
+func (s *userService) Register(c *gin.Context) {
+    // Business logic for registering a user
+}
+```
+
+#### Handler
+- **Purpose**: Handlers (or controllers) manage HTTP requests and responses. They call services to perform business logic and return the results to the client.
+- **When to Use**: Use handlers to define how your application responds to HTTP requests.
+- **Example**: Handling a POST request to register a user, handling a GET request to fetch all images.
+
+```go
+// Example: UserHandler
+type UserHandler interface {
+    Register(ctx *gin.Context)
+    Login(ctx *gin.Context)
+    GetAllUsers(ctx *gin.Context)
+}
+
+type userHandler struct {
+    userService service.UserService
+}
+
+func (h *userHandler) Register(ctx *gin.Context) {
+    h.userService.Register(ctx)
+}
+```
+
+#### Router
+- **Purpose**: The router defines the endpoints of your application and maps them to the appropriate handlers.
+- **When to Use**: Use routers to set up the routes for your application.
+- **Example**: Defining routes for user registration, login, and fetching all users.
+
+```go
+// Example: UserRouter
+func RegisterUserRoutes(r *gin.Engine, userHandler handler.UserHandler) {
+    userGroup := r.Group("/users")
+    {
+        userGroup.POST("/register", userHandler.Register)
+        userGroup.POST("/login", userHandler.Login)
+        userGroup.GET("/all", userHandler.GetAllUsers)
+    }
+}
+```
+
+### How They Work Together
+
+1. **Router**: Defines the route and maps it to a handler.
+2. **Handler**: Receives the HTTP request, processes it, and calls the appropriate service method.
+3. **Service**: Contains the business logic, interacts with the repository to fetch or manipulate data.
+4. **Repository**: Interacts with the database to perform CRUD operations.
+
+### Example Flow
+
+Let's say you want to register a new user:
+
+1. **Router**: The router maps the `/register` endpoint to the `Register` method in the `UserHandler`.
+2. **Handler**: The `Register` method in the `UserHandler` receives the HTTP request, validates the input, and calls the `Register` method in the `UserService`.
+3. **Service**: The `Register` method in the `UserService` contains the business logic for registering a user. It hashes the password, creates a new user object, and calls the `CreateUser` method in the `UserRepository`.
+4. **Repository**: The `CreateUser` method in the `UserRepository` interacts with the database to save the new user.
+
+This separation of concerns makes your code more modular, easier to maintain, and testable. Each layer has a specific responsibility, and they work together to handle the application's functionality.
+
+I hope this clarifies the roles of each component! Let me know if you have any more questions.
